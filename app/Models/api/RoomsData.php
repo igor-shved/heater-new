@@ -26,10 +26,10 @@ class RoomsData extends Model
         }
     }
 
-    private function getArrNames(): \Illuminate\Support\Collection
+    private function getArrNames(): array
     {
         /*$disk = Storage::disk('public');
-          $arrNames = array();
+          $arrNames = [];
           if ($disk->exists('heater/outputs/names')) {
               $arrNames = explode(';', $disk->get('heater/outputs/names'));
               dd($arrNames);
@@ -37,15 +37,14 @@ class RoomsData extends Model
         $filePath = './outputs/names';
         $collectNamesFile = collect([]);
         $countRooms = 16;
+        $arrNamesFile = [];
         if (File::exists($filePath)) {
             $arrNamesFile = explode(';', File::get($filePath), 18);
-            $countRooms = $arrNamesFile[0];
-            $collectNamesFile = collect($arrNamesFile);
         }
-
-        return $collectNamesFile->filter(function ($item, $key) use ($countRooms) {
+        /*$collectNamesFile->filter(function ($item, $key) use ($countRooms) {
             return ($key > 0 and $key <= $countRooms + 1);
-        })->all();
+        })->all()*/
+        return $arrNamesFile;
     }
 
     private function getUpdateSettings(): array
@@ -59,7 +58,7 @@ class RoomsData extends Model
             $st = "00000000000000000:restore";
             File::put($filePath, $st, true);
         }
-        $updateSettings = array();
+        $updateSettings = [];
         for ($i = 0; $i < 17; $i++)
             if ($st[$i] == 0)
                 $updateSettings[$i] = 0;
@@ -73,7 +72,7 @@ class RoomsData extends Model
     private function getLatestData(): array
     {
         $filePath = './datalog/latestdata.php';
-        $latestData = array();
+        $latestData = [];
         if (File::exists($filePath)) {
             $latestData = explode(';', File::get($filePath));
         }
@@ -88,18 +87,85 @@ class RoomsData extends Model
         return $state;
     }
 
+    private function getScheduleTemp($scheduleArrTime)
+    {
+        /*$curDateTimeZone = new \DateTimeZone("Europe/Kiev");
+        $curDateTime = new \DateTime("now", $curDateTimeZone);
+        $timeOffset = $curDateTimeZone->getOffset($curDateTime);
+        $curDate = $curDateTime->getTimestamp() + $timeOffset;*/
+        date_default_timezone_set("Europe/Kiev");
+        $curTime = time();
+        $currentHours = date('H', $curTime);
+        $currentMinutes = date('i', $curTime);
+        $currentSeconds = date('s', $curTime);
+        dd($scheduleArrTime);
+        $scheduleArr = [];
+        for ($i = 1; $i < 6; $i++) {
+            $scheduleArr[$i] = $scheduleArrTime[$i - 1];
+        }
+        $scheduleArr[0] = 0;
+        $scheduleArr[6] = 2360;
+
+        $timeVal = $currentHours * 3600 + $currentMinutes * 60 + $currentSeconds;
+        dd($timeVal);
+//        for (i = 0; i < scheduleIntervalsNum[id]; i++) {
+//            // conver time to num of seconds from 00:00
+//            var
+//            timeValFromSchedule1 = Math . floor(scheduleArr[i] / 100) * 3600 + (scheduleArr[i] % 100) * 60;
+//            var
+//            timeValFromSchedule2 = Math . floor(scheduleArr[i + 1] / 100) * 3600 + (scheduleArr[i + 1] % 100) * 60;
+//
+//            if (timeValFromSchedule1 >= timeVal && timeVal < timeValFromSchedule2)
+//                break;
+//        }
+//
+//
+//        var
+//        mode = scheduleArrIntervalMode[id][i - 1];
+//
+//        if (mode == 0) {
+//            var
+//            res = scheduleArrTemp[id][i - 1];
+//
+//            if (addDeg)
+//                res += "&deg;c";
+//
+//            return res;
+//        }
+//
+//        if (mode == 1)
+//            return 'вкл';
+//        else
+//            return 'выкл';
+    }
+
+    private function getCurrentModeText($arrMode)
+    {
+        switch ($arrMode['currentMode']) {
+            case 1:
+                return $arrMode['rightNowTemp'];
+            case 3:
+                return $arrMode['standByTemp'];
+            case 4:
+                return 'вкл';
+            case 5:
+                return 'выкл';
+            case 2:
+                return RoomsData::getScheduleTemp($arrMode['scheduleArrTime']);
+        }
+    }
 
     public function getArraySettings(): array
     {
-        $currentMode = array();
-        $rightNowTemp = array();
-        $standByTemp = array();
-        $scheduleIntervalsNum = array();
-        $scheduleArrTime = array();
-        $scheduleArrTemp = array();
-        $scheduleArrIntervalMode = array();
-        $updateSettings = array();
-        $followAllHouse = array();
+        $currentMode = [];
+        $rightNowTemp = [];
+        $standByTemp = [];
+        $scheduleIntervalsNum = [];
+        $scheduleArrTime = [];
+        $scheduleArrTemp = [];
+        $scheduleArrIntervalMode = [];
+        $updateSettings = [];
+        $followAllHouse = [];
 
         $roomsTsensorsNames = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
         $roomsTsensors = [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -160,27 +226,35 @@ class RoomsData extends Model
             }
 
         }
-        $arrayRooms = array();
-        foreach ($roomsName as $key => $item) {
-            json
+        $arrayRooms = [];
+        foreach ($roomsName as $key => $value) {
+            if ($key === 0) continue;
+            $index = $key - 1;
+            $arrMode = [
+                'currentMode' => $currentMode[$index],
+                'rightNowTemp' => $rightNowTemp[$index],
+                'standByTemp' => $standByTemp[$index],
+                'scheduleArrTime' => $scheduleArrTime[$index],
+            ];
+            $arrayRooms[] = [
+                'id' => $index,
+                'currentMode' => $currentMode[$index],
+                'currentModeText' => RoomsData::getCurrentModeText($arrMode),
+                'rightNowTemp' => $rightNowTemp[$index],
+                'standByTemp' => $standByTemp[$index],
+                'scheduleIntervalsNum' => $scheduleIntervalsNum[$index],
+                'roomsName' => $roomsName[$index],
+                'roomsTsensors' => $roomsTsensors[$index],
+                'roomsPOutputs' => $roomsPOutputs[$index],
+                'updateSettings' => $updateSettings[$index],
+                'followAllHouse' => $followAllHouse[$index],
+                'scheduleArrTime' => $scheduleArrTime[$index],
+                'scheduleArrTemp' => $scheduleArrTemp[$index],
+                'scheduleArrIntervalMode' => $scheduleArrIntervalMode[$index],
+                'roomsTsensorsNames' => $roomsTsensorsNames[$roomsTsensors[$index]],
+            ];
         }
-        return [
-            'currentMode' => $currentMode,
-            'rightNowTemp' => $rightNowTemp,
-            'standByTemp' => $standByTemp,
-            'scheduleIntervalsNum' => $scheduleIntervalsNum,
-            'roomsName' => $roomsName,
-            'roomsTsensors' => $roomsTsensors,
-            'roomsPOutputs' => $roomsPOutputs,
-            'updateSettings' => $updateSettings,
-            'followAllHouse' => $followAllHouse,
-            'followAllHouse2' => $followAllHouse,
-            'scheduleArrTime' => $scheduleArrTime,
-            'scheduleArrTemp' => $scheduleArrTemp,
-            'scheduleArrIntervalMode' => $scheduleArrIntervalMode,
-            'roomsTsensorsNames' => $roomsTsensorsNames,
-
-        ];
+        return $arrayRooms;
     }
 
 
