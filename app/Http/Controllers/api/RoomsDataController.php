@@ -11,7 +11,7 @@ class RoomsDataController extends Controller
     public function getRoomsData()
     {
         $dataArray = RoomsData::getArraySettings();
-        dd($dataArray);
+        //dd($dataArray);
         return $dataArray;
     }
 }
