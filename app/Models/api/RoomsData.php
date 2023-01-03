@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 //use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-use mysql_xdevapi\CollectionRemove;
 
 
 class RoomsData extends Model
@@ -22,8 +21,8 @@ class RoomsData extends Model
             if (is_countable($val)) {
                 $retVal = count($val);
             }
-            return $retVal;
         }
+        return $retVal;
     }
 
     private function getArrNames(): array
@@ -35,16 +34,18 @@ class RoomsData extends Model
               dd($arrNames);
           }*/
         $filePath = './outputs/names';
-        $collectNamesFile = collect([]);
-        $countRooms = 16;
         $arrNamesFile = [];
         if (File::exists($filePath)) {
-            $arrNamesFile = explode(';', File::get($filePath), 18);
+            $arrNamesFile = explode(';', File::get($filePath));
         }
-        /*$collectNamesFile->filter(function ($item, $key) use ($countRooms) {
-            return ($key > 0 and $key <= $countRooms + 1);
-        })->all()*/
-        return $arrNamesFile;
+        $collectNamesFile = collect($arrNamesFile);
+        return $collectNamesFile->filter(function ($item, $key) {
+            return $key > 0;
+        })->mapWithKeys(function ($item, $key) {
+            return [
+                $key - 1 => $item
+            ];
+        })->all();
     }
 
     private function getUpdateSettings(): array
@@ -94,46 +95,44 @@ class RoomsData extends Model
         $timeOffset = $curDateTimeZone->getOffset($curDateTime);
         $curDate = $curDateTime->getTimestamp() + $timeOffset;*/
         //date_default_timezone_set("Europe/Kiev");
-        dump($arrMode);
         $scheduleArrTime = $arrMode['scheduleArrTime'];
         $scheduleIntervalsNum = $arrMode['scheduleIntervalsNum'];
         $scheduleArrIntervalMode = $arrMode['scheduleArrIntervalMode'];
+        $scheduleArrTemp = $arrMode['scheduleArrTemp'];
         $curTime = time();
         $currentHours = intval(date('H', $curTime));
         $currentMinutes = intval(date('i', $curTime));
         $currentSeconds = intval(date('s', $curTime));
-        //$scheduleArr = [];
         $scheduleArr = array_fill(0, 7, null);
-        $lengthArrTime = RoomsData::countVal($scheduleArrTime);
-        for ($i = 1; $i < 6; $i++) {
-            $scheduleArr[$i] = intval($scheduleArrTime[$i - 1]);
-            //dump($scheduleArr[$i]);
-        }
+//        dump($arrMode['id']);
+//        dump($scheduleArrTime);
         $scheduleArr[0] = 0;
         $scheduleArr[6] = 2360;
+        $countScheduleArrTime = RoomsData::countVal($scheduleArrTime);
+        for ($i = 1; $i < 6; $i++) {
+            if ($scheduleIntervalsNum < $i) {
+                break;
+            }
+            $scheduleArr[$i] = $scheduleArrTime[$i - 1];
+        }
         $timeVal = $currentHours * 3600 + $currentMinutes * 60 + $currentSeconds;
-        dump($scheduleArr);
         for ($i = 0; $i < $scheduleIntervalsNum; $i++) {
             // convert time to num of seconds from 00:00
-            //if ($scheduleArr[$i] == null) continue;
             $timeValFromSchedule1 = floor($scheduleArr[$i] / 100) * 3600 + ($scheduleArr[$i] % 100) * 60;
-            //dump($timeValFromSchedule1);
             $timeValFromSchedule2 = floor($scheduleArr[$i + 1] / 100) * 3600 + ($scheduleArr[$i + 1] % 100) * 60;
             if ($timeValFromSchedule1 >= $timeVal && $timeVal < $timeValFromSchedule2)
                 //dd($timeValFromSchedule1, $timeVal, $timeValFromSchedule2, $i);
                 //dd($timeValFromSchedule1);
                 break;
         }
+        $scheduleArrIntervalModeLength = RoomsData::countVal($scheduleArrIntervalMode);
+        debughtml(['$scheduleArrIntervalMode' => $scheduleArrIntervalMode]);
         $mode = $scheduleArrIntervalMode[$i - 1];
         switch ($mode) {
             case 0:
-                $res = $scheduleArrTemp[$i - 1];
-                $res += "&deg;c";
-                return $res;
-                break;
+                return $scheduleArrTemp[$i - 1];
             case 1:
                 return 'вкл';
-                break;
             default:
                 return 'выкл';
         }
@@ -144,24 +143,20 @@ class RoomsData extends Model
         switch ($arrMode['currentMode']) {
             case 1:
                 return $arrMode['rightNowTemp'];
-                break;
             case 3:
                 return $arrMode['standByTemp'];
-                break;
             case 4:
                 return 'вкл';
-                break;
             case 5:
                 return 'выкл';
-                break;
             case 2:
                 return RoomsData::getScheduleTemp($arrMode);
-                break;
+            default:
+                return '--';
         }
     }
 
-    public
-    function getArraySettings(): array
+    public function getArraySettings(): array
     {
         $currentMode = [];
         $rightNowTemp = [];
@@ -209,7 +204,6 @@ class RoomsData extends Model
                 $intervalsNum = 10;
 
             $j = 4;
-
             for ($j = 0; $j < $intervalsNum; $j++) {
                 $val = hexdec($p2[$j + 4]);
 
@@ -236,13 +230,16 @@ class RoomsData extends Model
         foreach ($roomsName as $key => $value) {
             if ($key === 0) continue;
             $index = $key - 1;
+            debughtml(['id' => $index]);
             $arrMode = [
+                'id' => $index,
                 'currentMode' => $currentMode[$index],
                 'rightNowTemp' => $rightNowTemp[$index],
                 'standByTemp' => $standByTemp[$index],
                 'scheduleArrTime' => $scheduleArrTime[$index],
                 'scheduleIntervalsNum' => $scheduleIntervalsNum[$index],
                 'scheduleArrIntervalMode' => $scheduleArrIntervalMode[$index],
+                'scheduleArrTemp' => $scheduleArrTemp[$index],
             ];
             $arrayRooms[] = [
                 'id' => $index,
