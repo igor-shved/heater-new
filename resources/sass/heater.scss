@@ -1,0 +1,80 @@
+@import "main";
+
+$font-color: #ffffff;
+$color-block: #5C5C5C;
+$border-radius: 0.5rem;
+$width-name-block: 70%;
+$border-thickness: 1.5px;
+
+.container__room {
+    max-width: 600px;
+    margin: 0 auto;
+    color: $font-color;
+}
+
+.all-room {
+    margin: -$border-thickness 0 0 0;
+}
+
+.all-room__row, .room__row {
+    display: flex;
+    justify-content: space-between;
+    background-color: $color-block;
+    border-radius: $border-radius;
+    border: $border-thickness solid white;
+    padding: 1% 1% 1% 1%;
+    align-self: center;
+}
+
+.all-room__clock-debug {
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 $width-name-block;
+    flex-wrap: nowrap;
+}
+
+.all-room__clock-block, .room__temperature-name {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 $width-name-block;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-self: center;
+}
+
+.all-room__debug {
+    align-items: center;
+}
+
+.all-room__temperature-block, .room__temperature-block {
+    display: flex;
+    align-self: center;
+    flex-wrap: nowrap;
+    flex-direction: column;
+}
+
+.room__temperature {
+    font-size: $font-size * 0.9;
+}
+
+.room__name {
+    margin: 2% 0 0 0;
+}
+
+.all-room__temperature-value, .room__temperature-value {
+    margin: 0 0 0 60%;
+    font-size: $font-size * 0.7;
+}
+
+
+.all-room__state, .room__state {
+    align-self: center;
+
+}
+
+.all-room__settings, .room__settings {
+    align-self: center;
+}
+
+
+

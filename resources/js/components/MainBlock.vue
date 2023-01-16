@@ -1,6 +1,6 @@
 <template>
     <div class="all-room-0">
-        <div class="container">
+        <div class="container__room">
             <div class="all-room__row">
                 <div class="all-room__clock-debug">
                     <div class="all-room__clock-block">
@@ -8,7 +8,7 @@
                             Часы
                         </div>
                         <div class="all-room__name-block">
-                            Наименование комнаты
+                            Управление домом
                         </div>
                     </div>
                     <div class="all-room__debug">

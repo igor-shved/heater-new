@@ -36,7 +36,7 @@ class RoomsData extends Model
         $filePath = './outputs/names';
         $arrNamesFile = [];
         if (File::exists($filePath)) {
-            $arrNamesFile = explode(';', File::get($filePath));
+            $arrNamesFile = explode(';', File::get($filePath), 18);
         }
         $collectNamesFile = collect($arrNamesFile);
         return $collectNamesFile->filter(function ($item, $key) {
@@ -48,7 +48,7 @@ class RoomsData extends Model
         })->all();
     }
 
-    private function getUpdateSettings(): array
+    private function getSt()
     {
         $filePath = './outputs/st';
         $st = '';
@@ -59,6 +59,11 @@ class RoomsData extends Model
             $st = "00000000000000000:restore";
             File::put($filePath, $st, true);
         }
+        return $st;
+    }
+
+    private function getUpdateSettings($st): array
+    {
         $updateSettings = [];
         for ($i = 0; $i < 17; $i++)
             if ($st[$i] == 0)
@@ -121,16 +126,13 @@ class RoomsData extends Model
             $timeValFromSchedule1 = floor($scheduleArr[$i] / 100) * 3600 + ($scheduleArr[$i] % 100) * 60;
             $timeValFromSchedule2 = floor($scheduleArr[$i + 1] / 100) * 3600 + ($scheduleArr[$i + 1] % 100) * 60;
             if ($timeValFromSchedule1 >= $timeVal && $timeVal < $timeValFromSchedule2)
-                //dd($timeValFromSchedule1, $timeVal, $timeValFromSchedule2, $i);
-                //dd($timeValFromSchedule1);
                 break;
         }
-        $scheduleArrIntervalModeLength = RoomsData::countVal($scheduleArrIntervalMode);
-        debughtml(['$scheduleArrIntervalMode' => $scheduleArrIntervalMode]);
+        //debughtml(['$scheduleArrIntervalMode' => $scheduleArrIntervalMode]);
         $mode = $scheduleArrIntervalMode[$i - 1];
         switch ($mode) {
             case 0:
-                return $scheduleArrTemp[$i - 1];
+                return strval($scheduleArrTemp[$i - 1]) . '℃';
             case 1:
                 return 'вкл';
             default:
@@ -142,9 +144,9 @@ class RoomsData extends Model
     {
         switch ($arrMode['currentMode']) {
             case 1:
-                return $arrMode['rightNowTemp'];
+                return $arrMode['rightNowTemp'] . '℃';
             case 3:
-                return $arrMode['standByTemp'];
+                return $arrMode['standByTemp'] . '℃';
             case 4:
                 return 'вкл';
             case 5:
@@ -152,7 +154,7 @@ class RoomsData extends Model
             case 2:
                 return RoomsData::getScheduleTemp($arrMode);
             default:
-                return '--';
+                return '--℃';
         }
     }
 
@@ -166,7 +168,6 @@ class RoomsData extends Model
         $scheduleArrTemp = [];
         $scheduleArrIntervalMode = [];
         $updateSettings = [];
-        $followAllHouse = [];
 
         $roomsTsensorsNames = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
         $roomsTsensors = [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -177,8 +178,10 @@ class RoomsData extends Model
         $modeXStrPrev = $latestData[23];
         $state = RoomsData::setState($latestData);
 
-        $updateSettings = RoomsData::getupdateSettings();
-        $st = decbin(hexdec($latestData[24]));
+        $st = RoomsData::getSt();
+        //Todo изменение выходов
+        $stateDebugStr = $st;
+        $st = decbin(hexdec($ld[24]));
         $len = strlen($st);
         for ($i = 0; $i < 16; $i++) {
             if ($i < $len)
@@ -187,6 +190,8 @@ class RoomsData extends Model
                 $followAllHouse[16 - $i] = 0;
         }
         $followAllHouse[0] = 1;
+
+        $updateSettings = RoomsData::getupdateSettings($st);
 
         for ($i = 0; $i < 17; $i++) {
             $filePath = './outputs/' . $i;
@@ -226,11 +231,15 @@ class RoomsData extends Model
             }
 
         }
+        //todo $thisServerUpdateTime - "outputs/date.x"
+        // m.dirty - 'outputs/st' был выдан уже контроллеру в ответ
+        // d.dirty - 'outputs/x', где x = 0..16 был выдан уже контроллеру в ответ
+        // o.dirty - данные 'outputs/st' или 'outputs/x' устарели,
+        // контроллер должен начать процедуру запроса данных с начала (refresh)
+        // x.dirty = 000 (первый байт = o.dirty, воторой байт m.dirty, третий байт - d.dirty)
         $arrayRooms = [];
         foreach ($roomsName as $key => $value) {
-            if ($key === 0) continue;
-            $index = $key - 1;
-            debughtml(['id' => $index]);
+            $index = $key;
             $arrMode = [
                 'id' => $index,
                 'currentMode' => $currentMode[$index],
@@ -243,20 +252,23 @@ class RoomsData extends Model
             ];
             $arrayRooms[] = [
                 'id' => $index,
+                'roomsName' => $roomsName[$index],
                 'currentMode' => $currentMode[$index],
                 'currentModeText' => RoomsData::getCurrentModeText($arrMode),
                 'rightNowTemp' => $rightNowTemp[$index],
                 'standByTemp' => $standByTemp[$index],
                 'scheduleIntervalsNum' => $scheduleIntervalsNum[$index],
-                'roomsName' => $roomsName[$index],
                 'roomsTsensors' => $roomsTsensors[$index],
                 'roomsPOutputs' => $roomsPOutputs[$index],
                 'updateSettings' => $updateSettings[$index],
-                'followAllHouse' => $followAllHouse[$index],
+                'followAllHouse' => $followAllHouse,
                 'scheduleArrTime' => $scheduleArrTime[$index],
                 'scheduleArrTemp' => $scheduleArrTemp[$index],
                 'scheduleArrIntervalMode' => $scheduleArrIntervalMode[$index],
                 'roomsTsensorsNames' => $roomsTsensorsNames[$roomsTsensors[$index]],
+                'modeXStrPrev' => $modeXStrPrev,
+                'state' => $state,
+                'stateDebugStr' => $stateDebugStr,
             ];
         }
         return $arrayRooms;

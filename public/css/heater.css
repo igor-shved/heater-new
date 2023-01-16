@@ -127,3 +127,71 @@ footer.footer .container .footer__row {
   align-items: center;
   margin: 3% 0 3% 0;
 }
+
+.container__room {
+  max-width: 600px;
+  margin: 0 auto;
+  color: #ffffff;
+}
+
+.all-room {
+  margin: -1.5px 0 0 0;
+}
+
+.all-room__row, .room__row {
+  display: flex;
+  justify-content: space-between;
+  background-color: #5C5C5C;
+  border-radius: 0.5rem;
+  border: 1.5px solid white;
+  padding: 1% 1% 1% 1%;
+  align-self: center;
+}
+
+.all-room__clock-debug {
+  display: flex;
+  flex-direction: row;
+  flex: 0 0 70%;
+  flex-wrap: nowrap;
+}
+
+.all-room__clock-block, .room__temperature-name {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 70%;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-self: center;
+}
+
+.all-room__debug {
+  align-items: center;
+}
+
+.all-room__temperature-block, .room__temperature-block {
+  display: flex;
+  align-self: center;
+  flex-wrap: nowrap;
+  flex-direction: column;
+}
+
+.room__temperature {
+  font-size: 1.35rem;
+}
+
+.room__name {
+  margin: 2% 0 0 0;
+}
+
+.all-room__temperature-value, .room__temperature-value {
+  margin: 0 0 0 60%;
+  font-size: 1.05rem;
+}
+
+.all-room__state, .room__state {
+  align-self: center;
+}
+
+.all-room__settings, .room__settings {
+  align-self: center;
+}
