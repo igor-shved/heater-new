@@ -74,56 +74,117 @@ body {
   height: 100%;
   font-family: "Arial";
   font-size: 1.5rem;
+  color: white;
 }
 
 .wrapper {
   min-height: 100%;
+  margin: 0 auto;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-self: center;
+  justify-content: center;
+  max-width: 600px;
+}
+
+a:visited, a:active, a:link {
+  color: white;
 }
 
 .header {
-  height: 70px;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  border: 2px solid red;
   z-index: 1000;
-}
-.header .header__container {
-  max-width: 80%;
-  margin: 0 auto;
-  display: flex;
-  padding: 0px 30px;
-  align-items: center;
-  background: grey;
+  color: white;
 }
 .header .menu__list {
   display: flex;
+  justify-content: space-evenly;
+  flex-flow: row nowrap;
+  height: 100px;
+  margin: 0 auto;
+  background: #5C5C5C;
   align-items: center;
-  justify-content: space-between;
-  justify-content: space-between;
 }
 .header .menu__list li {
-  padding: 10px 10px 10px 10px;
+  padding: 20px;
+  text-align: center;
+  border: 1.5px solid white;
+  border-radius: 0.5rem;
 }
 
 .content {
+  display: flex;
   flex: 1 1 auto;
-  margin: 72px;
+  margin-top: 101.5px;
+  flex-direction: column;
 }
 
-footer.footer .container {
+.room__row {
+  display: flex;
+  min-height: 100px;
+  color: white;
+  background-color: #5C5C5C;
+  border: 1.5px solid white;
+  justify-content: space-between;
+  padding: 2px;
+  flex-flow: row nowrap;
+  border-radius: 0.5rem;
+}
+
+.room__clock-debug, .room__temperature-name {
+  display: flex;
+  justify-content: space-between;
+  flex: 0 0 78%;
+  align-self: start;
+  padding: 1%;
+}
+
+.room__clock-debug {
+  flex-flow: row nowrap;
+}
+
+.room__debug {
+  margin: 0 20% 0 0;
+}
+
+.room__block-status {
+  display: flex;
+  justify-content: space-between;
+  flex-flow: row nowrap;
+  flex: 0 0 22%;
+  margin: 0.5% 0;
+}
+
+.room__temperature-name {
+  flex-flow: column nowrap;
+}
+
+.room__temperature-block {
+  display: flex;
+  align-self: center;
+  flex-flow: column nowrap;
+}
+
+.room__temperature-value {
+  margin: 0 0 0 60%;
+  font-size: 1.05rem;
+}
+
+.room__state, .room__settings {
+  align-self: center;
+}
+
+.footer {
+  display: inline-flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+.footer .footer__content {
   background-color: white;
   color: black;
   font-size: 1.2rem;
-}
-footer.footer .container .footer__row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 3% 0 3% 0;
+  margin: 10px 0;
 }

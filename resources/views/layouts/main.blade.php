@@ -7,7 +7,6 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Управление отоплением</title>
         <link rel="stylesheet" href="{{ mix('/css/main.css') }}"/>
-        <link rel="stylesheet" href="{{ mix('/css/heater.css') }}"/>
     </head>
     <body>
         <div class="wrapper">
@@ -18,13 +17,9 @@
                 @yield('content')
             </div>
             <footer class="footer">
-                <div class="container">
-                    <div class="footer__row">
-                        <div class="footer__content">Мой первый проект</div>
-                    </div>
-                </div>
+                <div class="footer__content">Мой первый проект</div>
             </footer>
         </div>
-        <script src="{{ mix('js/app.js') }}"></script>
+        @yield('script')
     </body>
 </html>

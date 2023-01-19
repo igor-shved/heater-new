@@ -105,7 +105,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  justify-content: space-between;
 }
 .header .menu__list li {
   padding: 10px 10px 10px 10px;
