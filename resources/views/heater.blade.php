@@ -3,6 +3,7 @@
     <div id="heater">
         <main-block></main-block>
         <room-block></room-block>
+        <router-view></router-view>
     </div>
 @endsection
 @section('script')

@@ -70,6 +70,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /*--------------------*/
+.router__color {
+  color: black;
+}
+
 body {
   height: 100%;
   font-family: "Arial";
