@@ -1,5 +1,5 @@
 const mix = require('laravel-mix');
-
+//const webpackConfig = require('./webpack.config');
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -12,5 +12,6 @@ const mix = require('laravel-mix');
  */
 
 mix.js('resources/js/heater.js', 'public/js')
+    //.webpackConfig(webpackConfig)
     .vue()
     .sass('resources/sass/main.scss', 'public/css');

@@ -22,3 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/get_rooms_data', [RoomsDataController::class, 'getRoomsData']);
+Route::get('/get_array_begin_data', [ArrayBeginDataController::class, 'getArrayBeginData']);
+//Route::get('/demo', [DemoController::class, 'getData']);

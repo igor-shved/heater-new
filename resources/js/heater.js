@@ -1,8 +1,12 @@
-require('./bootstrap');
-window.Vue = require('vue').default;
-import { createApp } from "vue";
-import router from "./router";
+import {createApp} from "vue";
+import store from "./store";
+import axios from "axios";
+
+/*import router from "./router";*/
+
 const app = createApp({});
-app.component('main-block', require('./components/MainBlock.vue').default);
-app.component('room-block', require('./components/RoomBlock.vue').default);
-app.use(router).mount('#heater');
+/*heater.use(router).mount('#heater'); */
+app.component('menu_block', require('./components/MenuBlock.vue').default);
+app.component('heater_block', require('./components/HeaterBlock.vue').default);
+app.component('modal_window', require('./components/ModalWindow.vue').default);
+app.use(store, axios).mount('#app');

@@ -158,6 +158,9 @@ class RoomsData extends Model
         }
     }
 
+    private function getArrayAllBeginSettings(){
+
+    }
     public function getArraySettings(): array
     {
         $currentMode = [];
@@ -181,7 +184,6 @@ class RoomsData extends Model
         $st = RoomsData::getSt();
         //Todo изменение выходов
         $stateDebugStr = $st;
-        $st = decbin(hexdec($ld[24]));
         $len = strlen($st);
         for ($i = 0; $i < 16; $i++) {
             if ($i < $len)
@@ -252,9 +254,9 @@ class RoomsData extends Model
             ];
             $arrayRooms[] = [
                 'id' => $index,
-                'roomsName' => $roomsName[$index],
+                'roomName' => $roomsName[$index],
                 'currentMode' => $currentMode[$index],
-                'currentModeText' => RoomsData::getCurrentModeText($arrMode),
+                'currentModeTextArray' => RoomsData::getCurrentModeText($arrMode),
                 'rightNowTemp' => $rightNowTemp[$index],
                 'standByTemp' => $standByTemp[$index],
                 'scheduleIntervalsNum' => $scheduleIntervalsNum[$index],

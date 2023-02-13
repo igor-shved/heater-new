@@ -10,8 +10,6 @@ class RoomsDataController extends Controller
 {
     public function getRoomsData()
     {
-        $dataArray = RoomsData::getArraySettings();
-        dd($dataArray);
-        return $dataArray;
+        return RoomsData::getArraySettings();
     }
 }

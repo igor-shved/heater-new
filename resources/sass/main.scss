@@ -11,18 +11,15 @@ $height-menu: 70px;
 $width-content: 80%;
 $max-width-block: 600px;
 $min-height-block: 100px;
-$width-wrapper: 600px;
+$width-wrapper: 100%;
 
-
-.router__color{
-    color: black;
-}
 
 body {
     height: 100%;
     font-family: $font-family;
     font-size: $font-size;
     color: white;
+    //overflow: hidden;
 }
 
 .wrapper {
@@ -44,24 +41,26 @@ a:visited, a:active, a:link {
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: 10;
     color: $font-color;
 
     .menu__list {
         display: flex;
-        justify-content: space-evenly;
-        //max-width: $width-wrapper;
+        max-width: $max-width-block;
+        justify-content: space-between;
         flex-flow: row nowrap;
         height: $min-height-block;
         margin: 0 auto;
-        background: $color-block;
+        background-color: white;
         align-items: center;
+        //z-index: 10;
 
         li {
             padding: 20px;
             text-align: center;
             border: $border-thickness solid white;
             border-radius: $border-radius;
+            background: $color-block;
         }
     }
 }
@@ -69,14 +68,17 @@ a:visited, a:active, a:link {
 .content {
     display: flex;
     flex: 1 1 auto;
-    margin-top: $min-height-block + $border-thickness;
     flex-direction: column;
+    margin-top: $min-height-block;
 }
 
-
-.room__row {
+.room {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
     display: flex;
     min-height: $min-height-block;
+    max-width: $max-width-block;
     color: $font-color;
     background-color: $color-block;
     border: $border-thickness solid white;
@@ -85,61 +87,163 @@ a:visited, a:active, a:link {
     //align-self: center;
     flex-flow: row nowrap;
     border-radius: $border-radius;
-}
+    flex-direction: row;
 
-.room__clock-debug, .room__temperature-name {
-    display: flex;
-    justify-content: space-between;
-    flex: 0 0 $width-name-block;
-    align-self: start;
-    padding: 1%;
-}
+    &__temperature_name {
+        flex-direction: column;
+    }
 
-.room__clock-debug {
-    flex-flow: row nowrap;
-}
+    &__temperature {
+        span {
+            margin: 0 30px 0 0;
+        }
+    }
 
-.room__debug {
-    margin: 0 20% 0 0;
-}
+    &__clock_debug, &__temperature_name {
+        display: flex;
+        justify-content: space-between;
+        flex: 0 0 $width-name-block;
+        align-self: start;
+        padding: 1%;
+        flex-direction: column;
+    }
 
-.room__block-status {
-    display: flex;
-    justify-content: space-between;
-    flex-flow: row nowrap;
-    flex: 0 0 100% - $width-name-block;
-    margin: 0.5% 0;
-}
+    &__clock_debug, &__temperature_block, &__block_status {
+        flex-flow: row nowrap;
+    }
 
-.room__temperature-name {
-    flex-flow: column nowrap;
-}
+    &__debug {
+        margin: 0 20% 0 0;
+    }
 
-.room__temperature-block {
-    display: flex;
-    align-self: center;
-    flex-flow: column nowrap;
-}
+    &__block_status {
+        display: flex;
+        justify-content: space-between;
+        flex: 0 0 100% - $width-name-block;
+        margin: 0.5% 0;
+    }
 
+    &__temperature_block {
+        display: flex;
+        align-self: center;
+    }
 
-.room__temperature-value {
-    margin: 0 0 0 60%;
-    font-size: $font-size * 0.7;
-}
+    &__temperature_value {
+        margin: 0 0 0 2px;
+        font-size: $font-size * 0.6;
+    }
 
-.room__state, .room__settings {
-    align-self: center;
+    &__state, &__settings {
+        align-self: center;
+    }
 }
 
 .footer {
     display: inline-flex;
     justify-content: center;
     margin: 0 auto;
+    color: black;
 
-    .footer__content {
+    &__content {
         background-color: white;
-        color: black;
         font-size: $font-size * 0.8;
         margin: 10px 0;
+    }
+}
+
+.modal {
+
+    &__shadow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(199, 180, 180, 0.7);
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        //opacity: 0; /* по умолчанию модальное окно прозрачно */
+        //visibility: hidden;
+        //pointer-events: none; /* элемент невидим для событий мыши */
+    }
+
+    &__container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        margin: 20px;
+    }
+
+    &__body{
+        position: relative;
+        display: flex;
+        flex-flow: column nowrap;
+        max-width: 400px;
+        background-color: $color-block;
+        border: $border-thickness solid white;
+        border-radius: $border-radius;
+    }
+
+    &__header {
+        position: relative;
+        display: flex;
+        flex-flow: column nowrap;
+        background-color: #747474;
+        border-radius: $border-radius $border-radius 0 0;
+    }
+
+    &__close {
+        position: absolute;
+        font-family: sans-serif;
+        font-size: 25px;
+        font-weight: bold;
+        right: 5px;
+        top: 5px;
+    }
+
+    &__title {
+        margin: 5px 5px;
+    }
+
+    &__content {
+        display: flex;
+        position: relative;
+    }
+
+    &__settings_block {
+        position: relative;
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    &__mode_block {
+        margin: 15px;
+    }
+
+    &__footer {
+        display: flex;
+        position: relative;
+        background-color: #747474;
+        height: 50px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0 0 $border-radius $border-radius;
+    }
+
+    &__footer_button {
+        font-weight: bold;
+        font-size: 16px;
+        width: 100px;
+        height: 30px;
+        border-radius: $border-radius;
     }
 }
