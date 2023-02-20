@@ -2,6 +2,7 @@
 
 //namespace \App\Http\Controllers;
 use App\Http\Controllers\api\RoomsDataController;
+use App\Http\Controllers\api\InitDataController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,5 +23,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/get_rooms_data', [RoomsDataController::class, 'getRoomsData']);
-Route::get('/get_array_begin_data', [ArrayBeginDataController::class, 'getArrayBeginData']);
+Route::get('/get_array_init_data', [InitDataController::class, 'getArrayInitData']);
 //Route::get('/demo', [DemoController::class, 'getData']);

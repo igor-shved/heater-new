@@ -2,11 +2,13 @@
 
 namespace App\Models\api;
 
+use App\Helpers\ServiceHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 //use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use mysql_xdevapi\Collection;
 
 
 class RoomsData extends Model
@@ -128,7 +130,8 @@ class RoomsData extends Model
             if ($timeValFromSchedule1 >= $timeVal && $timeVal < $timeValFromSchedule2)
                 break;
         }
-        //debughtml(['$scheduleArrIntervalMode' => $scheduleArrIntervalMode]);
+        //ServiceHelpers::debughtml(['$scheduleArrIntervalMode' => $scheduleArrIntervalMode]);
+        //dd();
         $mode = $scheduleArrIntervalMode[$i - 1];
         switch ($mode) {
             case 0:
@@ -158,9 +161,11 @@ class RoomsData extends Model
         }
     }
 
-    private function getArrayAllBeginSettings(){
+    private function getArrayAllBeginSettings()
+    {
 
     }
+
     public function getArraySettings(): array
     {
         $currentMode = [];
@@ -180,7 +185,12 @@ class RoomsData extends Model
         $latestData = RoomsData::getLatestData();
         $modeXStrPrev = $latestData[23];
         $state = RoomsData::setState($latestData);
-
+        $stateArray = [];
+        for ($i = 1; $i <= 16; $i++) {
+            $stateArray[] = ['number' => $i, 'state' => $state % 2];
+            $state = floor($state / 2);
+        }
+        //ServiceHelpers::debughtml(['$stateArray' => $stateArray]);
         $st = RoomsData::getSt();
         //Todo изменение выходов
         $stateDebugStr = $st;
@@ -240,8 +250,19 @@ class RoomsData extends Model
         // контроллер должен начать процедуру запроса данных с начала (refresh)
         // x.dirty = 000 (первый байт = o.dirty, воторой байт m.dirty, третий байт - d.dirty)
         $arrayRooms = [];
+        $stateCol = collect($stateArray);
         foreach ($roomsName as $key => $value) {
             $index = $key;
+            $currentStatusRelay = 0;
+            $curPNumber = $roomsPOutputs[$index];
+            if (!$index == 0) {
+                $currentStatusRelayFilter = $stateCol->filter(function ($item, $key) use ($curPNumber) {
+                    return $item['number'] == $curPNumber;
+                })->values();
+                if ($currentStatusRelayFilter->isNotEmpty()) {
+                    $currentStatusRelay = $currentStatusRelayFilter[0]['state'];
+                }
+            }
             $arrMode = [
                 'id' => $index,
                 'currentMode' => $currentMode[$index],
@@ -255,8 +276,9 @@ class RoomsData extends Model
             $arrayRooms[] = [
                 'id' => $index,
                 'roomName' => $roomsName[$index],
-                'currentMode' => $currentMode[$index],
+                'currentMode' => (int) $currentMode[$index],
                 'currentModeTextArray' => RoomsData::getCurrentModeText($arrMode),
+                'currentStatusRelay' => $currentStatusRelay,
                 'rightNowTemp' => $rightNowTemp[$index],
                 'standByTemp' => $standByTemp[$index],
                 'scheduleIntervalsNum' => $scheduleIntervalsNum[$index],
@@ -273,6 +295,7 @@ class RoomsData extends Model
                 'stateDebugStr' => $stateDebugStr,
             ];
         }
+        //dd($arrayRooms);
         return $arrayRooms;
     }
 

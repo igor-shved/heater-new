@@ -120,7 +120,7 @@ a:visited, a:active, a:link {
         display: flex;
         justify-content: space-between;
         flex: 0 0 100% - $width-name-block;
-        margin: 0.5% 0;
+        padding-right: 5px;
     }
 
     &__temperature_block {
@@ -177,17 +177,18 @@ a:visited, a:active, a:link {
         display: flex;
         flex-flow: column nowrap;
         align-items: center;
-        margin: 20px;
+        margin-top: 20px;
     }
 
-    &__body{
+    &__body {
         position: relative;
         display: flex;
         flex-flow: column nowrap;
-        max-width: 400px;
+        width: 450px;
         background-color: $color-block;
         border: $border-thickness solid white;
         border-radius: $border-radius;
+        margin: 0 auto;
     }
 
     &__header {
@@ -214,6 +215,17 @@ a:visited, a:active, a:link {
     &__content {
         display: flex;
         position: relative;
+        flex-flow: column nowrap;
+    }
+    &__mode_list, &__mode_setting {
+        display: flex;
+        position: relative;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+    }
+
+    &__mode_block {
+        margin: 15px;
     }
 
     &__settings_block {
@@ -225,9 +237,10 @@ a:visited, a:active, a:link {
         justify-content: space-around;
     }
 
-    &__mode_block {
-        margin: 15px;
+    &__bottom_line {
+        border-bottom: 5px solid white;
     }
+
 
     &__footer {
         display: flex;

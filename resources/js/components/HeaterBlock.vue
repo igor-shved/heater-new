@@ -1,9 +1,11 @@
 <template>
     <div class="content">
-        <room_block v-for="room in get_rooms_data"
-                    :room="room"
-                    :key="room.id"
-        />
+        <template v-if="isLoadRoomsData">
+            <room_block v-for="room in getRoomsData"
+                        :room="room"
+                        :key="room.id"
+            />
+        </template>
     </div>
 </template>
 
@@ -17,13 +19,19 @@ export default {
         room_block
     },
     computed: {
-        get_rooms_data() {
-            return this.$store.state.rooms_data;
-        }
+        getRoomsData() {
+            return this.$store.state.roomsData;
+        },
+        isLoadInitData() {
+            return this.$store.state.isLoadInitData;
+        },
+        isLoadRoomsData() {
+            return this.$store.state.isLoadRoomsData;
+        },
     },
-    mounted() {
-        this.$store.dispatch('LOAD_ROOMS_DATA');
-
+    beforeCreate() {
+        this.$store.dispatch('LOAD_ARRAY_INIT_DATA', '/api/get_array_init_data');
+        this.$store.dispatch('LOAD_ROOMS_DATA', '/api/get_rooms_data');
     }
 }
 </script>

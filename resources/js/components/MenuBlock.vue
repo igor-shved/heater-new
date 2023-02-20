@@ -3,8 +3,7 @@
         <nav>
             <ul class="menu__list">
                 <li v-for="(link_item, index) in menu_link"
-                    :key="index"
-                >
+                    :key="index">
                     <a :href="link_item.link">{{ link_item.title }}</a>
                 </li>
             </ul>

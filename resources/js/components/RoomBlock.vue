@@ -1,7 +1,12 @@
 <template>
     <div class="room">
-        <modal_window ref="modal" :room="room" :key="room.id"></modal_window>
-        <div v-if="it_main_block" class="room__clock_debug">
+        <modal_block ref="modalSelectMode" :room="room" :arrayModes="arrayModes" :key="'modalSelect'+String(room.id)"
+                     :curMode="room.currentMode"/>
+        <modal_block ref="modalSettingRoom" :room="room" :arrayModes="arrayModes" :key="'modalSetting'+String(room.id)"
+                     :curMode="room.currentMode"/>
+        <modal_block ref="modalSheduler" :room="room" :arrayModes="arrayModes" :key="'modalSheduler'+String(room.id)"
+                     :curMode="room.currentMode"/>
+        <div v-if="itMainBlock" class="room__clock_debug">
             <div class="room__clock_block">
                 <div class="room__clock">
                     Часы
@@ -39,11 +44,11 @@
                 </div>
             </div>
             <div class="room__state">
-                <img src="/icons/gaz.png"/>
+                <img v-if="onRelay" src="/icons/h.png"/>
             </div>
             <div class="room__settings">
                 <a href="" @click.prevent="openModal">
-                    <img src="/icons/individual.png"/>
+                    <img :src="imgSettings"/>
                 </a>
             </div>
         </div>
@@ -51,13 +56,14 @@
 </template>
 
 <script>
-import ModalWindow from "./ModalWindow.vue"
+import modal_block from "./ModalBlock.vue"
 
 export default {
     name: "room_block",
     components: {
-        ModalWindow
+        modal_block
     },
+    emits:['settingRoomClick'],
     props: {
         room: {
             type: Object,
@@ -65,35 +71,53 @@ export default {
                 return {};
             }
         }
-        },
+    },
     data() {
-        return {}
+        return {
+            arrayModes: []
+        }
     },
     computed: {
-        it_main_block() {
+        itMainBlock() {
             return this.room.id === 0 ? true : false;
+        },
+        imgSettings() {
+            return '/icons/' + this.arrayModes.filter(item => {
+                return item.id === this.room.currentMode;
+            })[0]['img'];
+        },
+        onRelay() {
+            return this.room.currentStatusRelay === 1 ? true : false;
         }
     },
     methods: {
-        /* async openModal() {
-            const modalResult = await this.$refs.actionModal.open();
-            console.log('сработало');
-            if (modalResult) {
-                console.log(modalResult);
-            }
-        }*/
-        getKey() {
-            console.log(this.$props.key);
-        },
         openModal() {
-            this.$refs.modal.isOpen = true;
+            this.$refs.modalSelectMode.isOpen = true;
         },
         closeModal() {
-            this.$refs.modal.isOpen = false;
+            this.$refs.modalSelectMode.isOpen = false;
         },
-        debug() {
-            console.log('key= ' + this.$props.key);
+        settingRoomClick(curRoom){
+          console.log('setting click room');
+        },
+    },
+    beforeMount() {
+        let arrModes = [];
+        if (this.room.id === 0) {
+            arrModes = this.$store.state.arrayInitData.homeModes;
+        } else {
+            arrModes = this.$store.state.arrayInitData.roomsModes;
         }
+        arrModes.forEach(item => {
+            let isSelect = item.id === this.room.currentMode ? true : false;
+            let itemNew = {
+                id: item.id,
+                img: item.img,
+                textMode: item.textMode,
+                isSelect: isSelect
+            };
+            this.arrayModes.push(itemNew);
+        })
     }
 }
 </script>
