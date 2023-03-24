@@ -1,11 +1,5 @@
 <template>
     <div class="room">
-        <modal_block ref="modalSelectMode" :room="room" :arrayModes="arrayModes" :key="'modalSelect'+String(room.id)"
-                     :curMode="room.currentMode"/>
-        <modal_block ref="modalSettingRoom" :room="room" :arrayModes="arrayModes" :key="'modalSetting'+String(room.id)"
-                     :curMode="room.currentMode"/>
-        <modal_block ref="modalSheduler" :room="room" :arrayModes="arrayModes" :key="'modalSheduler'+String(room.id)"
-                     :curMode="room.currentMode"/>
         <div v-if="itMainBlock" class="room__clock_debug">
             <div class="room__clock_block">
                 <div class="room__clock">
@@ -16,7 +10,7 @@
                 </div>
             </div>
             <div class="room__debug">
-                <a href="#">
+                <a href="" @click.prevent="">
                     <img src="/icons/s-chat.png"/>
                 </a>
             </div>
@@ -24,8 +18,9 @@
 
         <div v-else class="room__temperature_name">
             <div class="room__temperature">
-                <span>{{ room.rightNowTemp }}&deg;c</span>
+                <span>{{ room.roomNowTemp }}</span>
                 <span>№ комнаты: {{ room.id }}</span>
+                <span>P{{ room.roomsPOutputs }} - T{{ room.roomsTsensors }}</span>
             </div>
             <div class="room__name">
                 {{ room.roomName }}
@@ -40,14 +35,14 @@
                     </a>
                 </div>
                 <div class="room__temperature_value">
-                    {{ room.standByTemp }}&deg;c
+                    {{ room.currentModeTextArray }}
                 </div>
             </div>
             <div class="room__state">
                 <img v-if="onRelay" src="/icons/h.png"/>
             </div>
             <div class="room__settings">
-                <a href="" @click.prevent="openModal">
+                <a href="" @click.prevent="openModalMode">
                     <img :src="imgSettings"/>
                 </a>
             </div>
@@ -56,16 +51,12 @@
 </template>
 
 <script>
-import modal_block from "./ModalBlock.vue"
 
 export default {
     name: "room_block",
-    components: {
-        modal_block
-    },
-    emits:['settingRoomClick'],
+    components: {},
     props: {
-        room: {
+        roomProps: {
             type: Object,
             default() {
                 return {};
@@ -74,12 +65,17 @@ export default {
     },
     data() {
         return {
-            arrayModes: []
+            arrayModes: [],
+            room: this.roomProps,
         }
+    },
+    created() {
+        this.arrayModes = this.$getArrayModesFromRoom(this.room.id);
+
     },
     computed: {
         itMainBlock() {
-            return this.room.id === 0 ? true : false;
+            return this.room.id === 0;
         },
         imgSettings() {
             return '/icons/' + this.arrayModes.filter(item => {
@@ -87,37 +83,13 @@ export default {
             })[0]['img'];
         },
         onRelay() {
-            return this.room.currentStatusRelay === 1 ? true : false;
+            return this.room.currentStatusRelay === 1;
         }
     },
     methods: {
-        openModal() {
-            this.$refs.modalSelectMode.isOpen = true;
-        },
-        closeModal() {
-            this.$refs.modalSelectMode.isOpen = false;
-        },
-        settingRoomClick(curRoom){
-          console.log('setting click room');
-        },
-    },
-    beforeMount() {
-        let arrModes = [];
-        if (this.room.id === 0) {
-            arrModes = this.$store.state.arrayInitData.homeModes;
-        } else {
-            arrModes = this.$store.state.arrayInitData.roomsModes;
+        openModalMode() {
+            this.$eventBus.$emit('open_modal_mode', this.room);
         }
-        arrModes.forEach(item => {
-            let isSelect = item.id === this.room.currentMode ? true : false;
-            let itemNew = {
-                id: item.id,
-                img: item.img,
-                textMode: item.textMode,
-                isSelect: isSelect
-            };
-            this.arrayModes.push(itemNew);
-        })
-    }
+    },
 }
 </script>

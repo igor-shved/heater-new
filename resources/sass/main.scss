@@ -19,7 +19,10 @@ body {
     font-family: $font-family;
     font-size: $font-size;
     color: white;
-    //overflow: hidden;
+}
+
+.body__Overflow_y_hidden {
+    overflow-y: hidden;
 }
 
 .wrapper {
@@ -63,6 +66,11 @@ a:visited, a:active, a:link {
             background: $color-block;
         }
     }
+}
+
+#app {
+    display: flex;
+    flex: 1 1 auto;
 }
 
 .content {
@@ -136,6 +144,13 @@ a:visited, a:active, a:link {
     &__state, &__settings {
         align-self: center;
     }
+
+}
+
+.loading_status {
+    color: black;
+    background-color: white;
+    margin: auto;
 }
 
 .footer {
@@ -153,7 +168,7 @@ a:visited, a:active, a:link {
 
 .modal {
 
-    &__shadow {
+    &__shadow_main, &__shadow_child1 {
         position: fixed;
         top: 0;
         left: 0;
@@ -161,7 +176,6 @@ a:visited, a:active, a:link {
         padding: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(199, 180, 180, 0.7);
         z-index: 1000;
         transition: opacity 0.3s ease;
         overflow-y: hidden;
@@ -169,6 +183,10 @@ a:visited, a:active, a:link {
         //opacity: 0; /* по умолчанию модальное окно прозрачно */
         //visibility: hidden;
         //pointer-events: none; /* элемент невидим для событий мыши */
+    }
+
+    &__shadow_background {
+        background-color: rgba(199, 180, 180, 0.5);
     }
 
     &__container {
@@ -216,7 +234,25 @@ a:visited, a:active, a:link {
         display: flex;
         position: relative;
         flex-flow: column nowrap;
+        margin: 10px;
     }
+
+    &__modal_mode {
+        z-index: 1001;
+    }
+
+    &__modal_setting {
+        z-index: 1002;
+    }
+
+    &__modal_period {
+        z-index: 1003;
+    }
+
+    &__mode_list {
+        height: 80px;
+    }
+
     &__mode_list, &__mode_setting {
         display: flex;
         position: relative;
@@ -241,15 +277,128 @@ a:visited, a:active, a:link {
         border-bottom: 5px solid white;
     }
 
+    &__temp_relay_block {
+        display: flex;
+        flex-flow: column nowrap;
+        padding-bottom: 10px;
+        border-bottom: 2px solid white;
+
+        input {
+            font-size: 20px;
+        }
+    }
+
+    &__temp_relay_setting {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 40px;
+    }
+
+    &__temp_relay_img {
+        height: 60px;
+    }
+
+    &__temp_relay_text {
+        width: 80px;
+    }
+
+    &__temp_relay_element {
+        margin: 5px 0;
+    }
+
+    &__temp_block {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-around;
+    }
+
+    &__temp_element {
+        display: inline-flex;
+        flex-flow: column nowrap;
+        align-self: center;
+        text-align: center;
+        justify-content: space-between;
+        padding: 10px;
+
+        img {
+            margin: auto;
+            text-align: center;
+            align-self: center;
+        }
+
+        p {
+            font-size: 40px;
+        }
+    }
+    &__hide_text {
+        color: #a49d9d;
+    }
+    &__schedule_container {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+    }
+
+    &__schedule_block {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+    }
+
+    &__schedule_element {
+        display: flex;
+        flex-flow: row nowrap;
+        flex: 1 1 33.333%;
+        justify-content: space-between;
+        align-self: center;
+    }
+
+    &__schedule_info {
+        display: flex;
+        flex-flow: row nowrap;
+        margin-left: 40px;
+        p {
+            margin: auto 10px;
+            font-size: 20px;
+        }
+
+    }
 
     &__footer {
         display: flex;
         position: relative;
         background-color: #747474;
-        height: 50px;
+        min-height: 50px;
         justify-content: center;
         align-items: center;
         border-radius: 0 0 $border-radius $border-radius;
+    }
+
+    &__schedule_footer {
+        display: flex;
+        flex-flow: column nowrap;
+        align-self: center;
+        justify-content: space-between;
+        margin: 5px 0;
+    }
+
+    &__schedule_footer_keys {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        margin: 2px 0;
+    }
+
+    &__schedule_keys_block {
+        display: flex;
+        flex-flow: row nowrap;
+        min-width: 180px;
+
+        p {
+            margin: auto 5px;
+        }
     }
 
     &__footer_button {
@@ -258,5 +407,6 @@ a:visited, a:active, a:link {
         width: 100px;
         height: 30px;
         border-radius: $border-radius;
+        margin: auto;
     }
 }

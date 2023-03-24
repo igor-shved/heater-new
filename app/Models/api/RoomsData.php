@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 //use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use mysql_xdevapi\Collection;
+use Ramsey\Uuid\Type\Integer;
 
 
 class RoomsData extends Model
@@ -135,7 +136,7 @@ class RoomsData extends Model
         $mode = $scheduleArrIntervalMode[$i - 1];
         switch ($mode) {
             case 0:
-                return strval($scheduleArrTemp[$i - 1]) . '℃';
+                return number_format($scheduleArrTemp[$i - 1], 1) . '°c';
             case 1:
                 return 'вкл';
             default:
@@ -147,9 +148,9 @@ class RoomsData extends Model
     {
         switch ($arrMode['currentMode']) {
             case 1:
-                return $arrMode['rightNowTemp'] . '℃';
+                return number_format($arrMode['rightNowTemp'], 1) . '°c';
             case 3:
-                return $arrMode['standByTemp'] . '℃';
+                return number_format($arrMode['standByTemp'], 1) . '°c';
             case 4:
                 return 'вкл';
             case 5:
@@ -157,13 +158,21 @@ class RoomsData extends Model
             case 2:
                 return RoomsData::getScheduleTemp($arrMode);
             default:
-                return '--℃';
+                return '--°c';
         }
     }
 
-    private function getArrayAllBeginSettings()
+    private function getNowTempText($tempNow)
     {
+        if ($tempNow === '')
+            return '--°c';
+        else
+            return number_format($tempNow, 1) . '°c';
+    }
 
+    private function isSelectSet($idMode, $currentMode): bool
+    {
+        if ($idMode === $currentMode) return true; else return false;
     }
 
     public function getArraySettings(): array
@@ -182,6 +191,7 @@ class RoomsData extends Model
         $roomsPOutputs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
         $roomsName = RoomsData::getArrNames();
+
         $latestData = RoomsData::getLatestData();
         $modeXStrPrev = $latestData[23];
         $state = RoomsData::setState($latestData);
@@ -230,18 +240,15 @@ class RoomsData extends Model
                 $temp = substr($val, -3, 3);
                 $scheduleArrTemp[$i][$j] = $temp / 10.0;
             }
-
             $val = hexdec($p2[$j + 4]);
             $fstr = "%0$intervalsNum" . "d";
             $istr = sprintf($fstr, $val);
 
             for ($j = $intervalsNum; $j < 6; $j++)
                 $istr .= "0";
-
             for ($j = 0; $j < 6; $j++) {
                 $scheduleArrIntervalMode[$i][$j] = $istr[$j];
             }
-
         }
         //todo $thisServerUpdateTime - "outputs/date.x"
         // m.dirty - 'outputs/st' был выдан уже контроллеру в ответ
@@ -263,6 +270,25 @@ class RoomsData extends Model
                     $currentStatusRelay = $currentStatusRelayFilter[0]['state'];
                 }
             }
+            $currentModeValue = (int)$currentMode[$index];
+            if ($index == 0) {
+                $arrayModes = [
+                    ['id' => 1, 'textMode' => 'ручной', 'img' => 'mode-hand.png', 'isSelect' => RoomsData::isSelectSet(1, $currentModeValue)],
+                    ['id' => 2, 'textMode' => 'по расписанию', 'img' => 'mode-schedule.png', 'isSelect' => RoomsData::isSelectSet(2, $currentModeValue)],
+                    ['id' => 3, 'textMode' => 'никого нет дома', 'img' => 'mode-standby.png', 'isSelect' => RoomsData::isSelectSet(3, $currentModeValue)],
+                    ['id' => 4, 'textMode' => 'включить', 'img' => 'mode-on.png', 'isSelect' => RoomsData::isSelectSet(4, $currentModeValue)],
+                    ['id' => 5, 'textMode' => 'выключить', 'img' => 'mode-off.png', 'isSelect' => RoomsData::isSelectSet(5, $currentModeValue)],
+                    ['id' => 7, 'textMode' => 'индивидуально', 'img' => 'individual.png', 'isSelect' => RoomsData::isSelectSet(7, $currentModeValue)],
+                ];
+            } else {
+                $arrayModes = [
+                    ['id' => 1, 'textMode' => 'ручной', 'img' => 'mode-hand.png', 'isSelect' => RoomsData::isSelectSet(1, $currentModeValue)],
+                    ['id' => 2, 'textMode' => 'по расписанию', 'img' => 'mode-schedule.png', 'isSelect' => RoomsData::isSelectSet(2, $currentModeValue)],
+                    ['id' => 3, 'textMode' => 'никого нет дома', 'img' => 'mode-standby.png', 'isSelect' => RoomsData::isSelectSet(3, $currentModeValue)],
+                    ['id' => 4, 'textMode' => 'включить', 'img' => 'mode-on.png', 'isSelect' => RoomsData::isSelectSet(4, $currentModeValue)],
+                    ['id' => 5, 'textMode' => 'выключить', 'img' => 'mode-off.png', 'isSelect' => RoomsData::isSelectSet(5, $currentModeValue)],
+                ];
+            }
             $arrMode = [
                 'id' => $index,
                 'currentMode' => $currentMode[$index],
@@ -273,11 +299,22 @@ class RoomsData extends Model
                 'scheduleArrIntervalMode' => $scheduleArrIntervalMode[$index],
                 'scheduleArrTemp' => $scheduleArrTemp[$index],
             ];
+            $scheduleArrRoom = [];
+            for ($i = 0; $i < count($scheduleArrTime[$index]); $i++){
+                $scheduleArrRoom[] = [
+                    'numStr' => $i + 1,
+                    'time' => intval($scheduleArrTime[$index][$i]),
+                    'temp' => $scheduleArrTemp[$index][$i],
+                    'mode' => intval($scheduleArrIntervalMode[$index][$i]),
+                ];
+            }
+
             $arrayRooms[] = [
                 'id' => $index,
                 'roomName' => $roomsName[$index],
-                'currentMode' => (int) $currentMode[$index],
+                'currentMode' => $currentModeValue,
                 'currentModeTextArray' => RoomsData::getCurrentModeText($arrMode),
+                'roomNowTemp' => RoomsData::getNowTempText($latestData[3 + $roomsTsensors[$index]]),
                 'currentStatusRelay' => $currentStatusRelay,
                 'rightNowTemp' => $rightNowTemp[$index],
                 'standByTemp' => $standByTemp[$index],
@@ -289,13 +326,16 @@ class RoomsData extends Model
                 'scheduleArrTime' => $scheduleArrTime[$index],
                 'scheduleArrTemp' => $scheduleArrTemp[$index],
                 'scheduleArrIntervalMode' => $scheduleArrIntervalMode[$index],
-                'roomsTsensorsNames' => $roomsTsensorsNames[$roomsTsensors[$index]],
+                'scheduleArrRoom' => $scheduleArrRoom,
+                'roomsTsensorsName' => $roomsTsensorsNames[$roomsTsensors[$index]],
                 'modeXStrPrev' => $modeXStrPrev,
                 'state' => $state,
                 'stateDebugStr' => $stateDebugStr,
+                'arrayModes' => $arrayModes,
             ];
         }
-        //dd($arrayRooms);
+        //dd($latestData, $roomsTsensors, $roomsPOutputs, $arrayRooms);
+
         return $arrayRooms;
     }
 

@@ -25,7 +25,10 @@
         "vuex": "^4.1.0"
     },
     "dependencies": {
+        "@vueuse/core": "^9.13.0",
         "bootstrap": "^5.2.3",
-        "vue-axios": "^3.5.2"
+        "vue-axios": "^3.5.2",
+        "vue-eventer": "^1.0.0",
+        "vuex-map-fields": "^1.4.1"
     }
 }

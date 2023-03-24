@@ -2,8 +2,8 @@
 @section('content')
 
     <div id="app">
-        <menu_block></menu_block>
-        <heater_block></heater_block>
+        <menu_list></menu_list>
+        <heater_list></heater_list>
     </div>
 
 @endsection
