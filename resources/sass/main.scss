@@ -6,8 +6,8 @@ $border-radius: 0.5rem;
 $width-name-block: 75%;
 $border-thickness: 1.5px;
 $font-family: "Arial";
-$font-size: 1.5rem;
-$height-menu: 70px;
+$font-size: 1.3rem;
+$height-menu: 100px;
 $width-content: 80%;
 $max-width-block: 600px;
 $min-height-block: 100px;
@@ -26,6 +26,7 @@ body {
 }
 
 .wrapper {
+    position: relative;
     min-height: 100%;
     margin: 0 auto;
     overflow: hidden;
@@ -33,6 +34,7 @@ body {
     flex-direction: column;
     justify-content: center;
     max-width: $width-wrapper;
+    background: $color-block;
 }
 
 a:visited, a:active, a:link {
@@ -43,8 +45,9 @@ a:visited, a:active, a:link {
     position: fixed;
     top: 0;
     left: 0;
+    height: $height-menu;
     width: 100%;
-    z-index: 10;
+    background: $color-block;
     color: $font-color;
 
     .menu__list {
@@ -54,9 +57,7 @@ a:visited, a:active, a:link {
         flex-flow: row nowrap;
         height: $min-height-block;
         margin: 0 auto;
-        background-color: white;
         align-items: center;
-        //z-index: 10;
 
         li {
             padding: 20px;
@@ -68,16 +69,15 @@ a:visited, a:active, a:link {
     }
 }
 
-#app {
-    display: flex;
-    flex: 1 1 auto;
-}
-
-.content {
+.content, #app, #debug {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
-    margin-top: $min-height-block;
+    margin-bottom: calc($font-size + 20px);
+}
+
+.content {
+    margin-top: $height-menu;
 }
 
 .room {
@@ -148,21 +148,23 @@ a:visited, a:active, a:link {
 }
 
 .loading_status {
-    color: black;
-    background-color: white;
-    margin: auto;
+    margin: 0 auto;
+    align-self: center;
 }
 
 .footer {
-    display: inline-flex;
+    position: fixed;
+    display: flex;
     justify-content: center;
-    margin: 0 auto;
-    color: black;
+    width: 100%;
+    background-color: $color-block;
+    height: calc($font-size + 20px);
+    bottom: 0px;
 
     &__content {
-        background-color: white;
-        font-size: $font-size * 0.8;
-        margin: 10px 0;
+        font-size: $font-size;
+        align-self: center;
+        //margin: 20px 0;
     }
 }
 
@@ -245,7 +247,7 @@ a:visited, a:active, a:link {
         z-index: 1002;
     }
 
-    &__modal_period {
+    &__modal_period_mode {
         z-index: 1003;
     }
 
@@ -332,9 +334,11 @@ a:visited, a:active, a:link {
             font-size: 40px;
         }
     }
+
     &__hide_text {
         color: #a49d9d;
     }
+
     &__schedule_container {
         display: flex;
         flex-flow: column nowrap;
@@ -359,11 +363,20 @@ a:visited, a:active, a:link {
         display: flex;
         flex-flow: row nowrap;
         margin-left: 40px;
+
         p {
             margin: auto 10px;
             font-size: 20px;
         }
+    }
 
+    &__schedule_mode_select_block, &__schedule_mode_select_element {
+        display: flex;
+        flex-flow: row nowrap;
+    }
+
+    &__schedule_mode_select_element {
+        margin-left: 20px;
     }
 
     &__footer {
@@ -410,3 +423,67 @@ a:visited, a:active, a:link {
         margin: auto;
     }
 }
+
+.debug {
+    &__content {
+        display: flex;
+        flex: 1 1 auto;
+        margin: 0 20px;
+        flex-flow: column nowrap;
+        background: $color-block;
+    }
+
+    &__block_column {
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+    }
+
+    &__block_row {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+    }
+
+    &__block_list_path {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+    }
+
+    &__element {
+        margin: 5px;
+    }
+
+    &__element_input_250 {
+        font-size: $font-size;
+        width: 250px;
+    }
+
+    &__element_input_30 {
+        font-size: $font-size;
+        width: 30px;
+    }
+
+    &__button {
+        border: $border-thickness solid white;
+        border-radius: $border-radius;
+        padding: 5px;
+        min-height: 40px;
+        margin: 5px;
+    }
+}
+table {
+    width: 100%;
+    table-layout: fixed;
+    border: 1px solid white;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid white;
+    border-collapse: collapse;
+    width: 2%;
+    padding: 5px;
+    word-wrap: break-word;
+}
+

@@ -82,7 +82,15 @@ const mutations = {
         state.arrayModesRooms = arrayModes;
     },
     SET_NEW_SETTING_ARRAY(state, objSetting) {
-        state.arrayNewSetting.push(objSetting);
+        let itemSetting = state.arrayNewSetting.find(item =>
+            item.idRoom === objSetting.idRoom && item.name === objSetting.name
+        );
+        if (itemSetting === undefined) {
+            state.arrayNewSetting.push(objSetting);
+        } else {
+            itemSetting.value = objSetting.value;
+        }
+
     },
     SET_CURRENT_ROOM(state, curRoom) {
         state.currentRoom = curRoom;

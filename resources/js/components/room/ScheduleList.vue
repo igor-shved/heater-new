@@ -24,8 +24,6 @@ export default {
             lengthArray: this.scheduleArrayProps.length,
         }
     },
-    created() {
-    },
     methods: {
         beginPeriodItem(index) {
             let beginPeriod = 0;

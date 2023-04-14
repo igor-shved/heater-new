@@ -1,53 +1,51 @@
 <template>
-    <div class="content">
-        <modal_window v-if="isOpenModalMode"
-                      :roomProps="curRoom"
-                      :key="'modalMode'"
-                      :classProps="classArrayModal"
-        >
-            <template #buttonClose>
-                <a href="" @click.prevent="closeModalMode" class="modal__close">X</a>
-            </template>
-            <template #header>
-                <div class="modal__title">
-                    <div v-if="itMainBlock">
-                        Настройки
-                    </div>
-                    <div v-else>
-                        Настройки комнаты № {{ curRoomId }}
-                    </div>
+    <modal_window v-if="isOpenModalMode"
+                  :roomProps="curRoom"
+                  :key="'modalAllSetting'"
+                  :classProps="classArrayModal"
+    >
+        <template #buttonClose>
+            <a href="" @click.prevent="closeModalMode" class="modal__close">X</a>
+        </template>
+        <template #header>
+            <div class="modal__title">
+                <div v-if="itMainBlock">
+                    Настройки
                 </div>
-                <div class="modal__title">
-                    {{ curRoomName }}
+                <div v-else>
+                    Настройки комнаты № {{ curRoomId }}
                 </div>
-                <div class="modal__title">
-                    Режим: {{ selectModeText }}
-                </div>
-            </template>
+            </div>
+            <div class="modal__title">
+                {{ curRoomName }}
+            </div>
+            <div class="modal__title">
+                Режим: {{ selectModeText }}
+            </div>
+        </template>
 
-            <template #content>
-                <mode_list
-                    :roomProps="curRoom"
-                />
-                <settings_list
-                    :roomProps="curRoom"
-                />
-            </template>
-
-            <template #footer>
-                <button @click="saveSelectMode" class="modal__footer_button">OK</button>
-            </template>
-
-        </modal_window>
-        <template v-if="isLoadDataRooms">
-            <room_block v-for="room in roomsData"
-                        :roomProps="room"
-                        :key="'room'+ String(room.id)"
+        <template #content>
+            <mode_list
+                :roomProps="curRoom"
+            />
+            <settings_list
+                :roomProps="curRoom"
             />
         </template>
-        <div v-else class="loading_status">
-            <p>Loading data</p>
-        </div>
+
+        <template #footer>
+            <button @click="saveSelectMode" class="modal__footer_button">OK</button>
+        </template>
+
+    </modal_window>
+    <template v-if="isLoadDataRooms">
+        <room_block v-for="room in roomsData"
+                    :roomProps="room"
+                    :key="'room'+ String(room.id)"
+        />
+    </template>
+    <div v-else class="loading_status">
+        <span>Loading data</span>
     </div>
 </template>
 
@@ -79,10 +77,10 @@ export default {
         }
     },
     created() {
-        //this.$eventBus.$on('data_load', this.onDataLoad);
+        // this.$eventBus.$on('data_load', this.onDataLoad);
         // setTimeout(() => {
         //     this.LOAD_ROOMS_DATA('/api/get_rooms_data')
-        // }, 5000);
+        // }, 30000);
         this.LOAD_ROOMS_DATA('/api/get_rooms_data');
         this.$eventBus.$on('open_modal_mode', this.openModalMode);
         this.$eventBus.$on('close_modal_mode', this.closeModalMode);
@@ -94,25 +92,32 @@ export default {
         this.$eventBus.$off('select_mode_set', this.selectModeSet);
     },
     methods: {
-        ...mapActions(["LOAD_ROOMS_DATA"]),
+        ...mapActions(['LOAD_ROOMS_DATA', 'SET_NEW_SETTING_ARRAY']),
         openModalMode(selRoom) {
             this.curRoom = selRoom;
             this.arrayModes = this.$getArrayModesFromRoom(this.curRoom.id);
             this.isOpenModalMode = true;
             document.body.classList.add('body__Overflow_y_hidden');
-            //console.log('open modal mode');
         },
         closeModalMode() {
             this.isOpenModalMode = false;
             document.body.classList.remove('body__Overflow_y_hidden');
-            //console.log('close modal mode');
         },
         selectModeSet(selMode) {
             this.selectMode = selMode;
         },
         saveSelectMode() {
-            if (this.selectMode != undefined)
-                console.log('save ' + this.selectMode);
+            if (this.selectMode != undefined) {
+                this.SET_NEW_SETTING_ARRAY(
+                    {
+                        idRoom: this.curRoom.id,
+                        name: 'selectMode',
+                        value: this.selectMode
+                    }
+                );
+                this.curRoom.currentMode = this.selectMode;
+            }
+            this.closeModalMode();
         },
     },
 
@@ -120,6 +125,7 @@ export default {
         ...mapState({
             roomsData: 'roomsData',
             isLoadDataRooms: 'isLoadDataRooms',
+            arrayNewSetting: 'arrayNewSetting',
         }),
         itMainBlock() {
             return this.curRoom.id === 0 ? true : false;

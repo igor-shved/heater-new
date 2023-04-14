@@ -57,6 +57,7 @@ return [
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
+            //'path' => storage_path('logs/'.date("Y_m").'/laravel_'.date('d_m_Y').'.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
 
@@ -64,7 +65,7 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
+            'days' => 7,
         ],
 
         'slack' => [
@@ -103,6 +104,7 @@ return [
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => env('LOG_LEVEL', 'debug'),
+            'path' => storage_path('logs/error.log'),
         ],
 
         'null' => [
@@ -112,6 +114,11 @@ return [
 
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
+        ],
+        'debug' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/'.date("Y_m").'/debug_'.date('d_m_Y').'.log'),
+            'level' => 'debug',
         ],
     ],
 

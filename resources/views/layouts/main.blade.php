@@ -10,7 +10,6 @@
     </head>
     <body>
         <div class="wrapper">
-            <!-- @include('menu') -->
             @yield('content')
             <footer class="footer">
                 <div class="footer__content">Мой первый проект</div>

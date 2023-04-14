@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\DataFilesController;
 use App\Http\Controllers\MainPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 //Route::get('/', function () { return view('welcome'); });
-Route::get('{any}', function () { return view('index'); })->where('any', '.*');
+//Route::get('{any}', function () { return view('index'); })->where('any', '.*');
+Route::get('/', function () {
+    return view('index');
+});
+Route::get('/debug', function () {
+    return view('debug');
+});
+
+
+
+Route::match(['get', 'post'], '/test', [DataFilesController::class, 'getDataFiles']);
 
 //Auth::routes();
 

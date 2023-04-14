@@ -2,10 +2,12 @@
     <header class="header">
         <nav>
             <ul class="menu__list">
-                <li v-for="(link_item, index) in menu_link"
-                    :key="index">
-                    <a :href="link_item.link">{{ link_item.title }}</a>
-                </li>
+                <template v-for="(link_item, index) in menu_link"
+                          :key="index">
+                    <a :href="link_item.link">
+                        <li>{{ link_item.title }}</li>
+                    </a>
+                </template>
             </ul>
         </nav>
     </header>
@@ -22,7 +24,7 @@ export default {
                     link: "/"
                 },
                 {
-                    title: "Debug heater2",
+                    title: "Debug heater",
                     link: "/debug"
                 }
             ]

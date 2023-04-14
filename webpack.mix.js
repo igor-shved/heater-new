@@ -11,7 +11,14 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/heater.js', 'public/js')
+mix.js('resources/js/app/heater.js', 'public/js').vue()
+    .js('resources/js/app/menu.js', 'public/js').vue()
+    .js('resources/js/app/debugSite.js', 'public/js').vue()
+    .version()
     //.webpackConfig(webpackConfig)
-    .vue()
     .sass('resources/sass/main.scss', 'public/css');
+// if (mix.inProduction()) {
+//     mix.version();
+// } else {
+//     mix.sourceMaps();
+// }

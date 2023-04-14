@@ -3,19 +3,14 @@
 namespace App\Models\api;
 
 use App\Helpers\ServiceHelpers;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 //use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-use mysql_xdevapi\Collection;
-use Ramsey\Uuid\Type\Integer;
 
 
 class RoomsData extends Model
 {
-    use HasFactory;
-
     function countVal($val)
     {
         $retVal = 0;
@@ -132,7 +127,6 @@ class RoomsData extends Model
                 break;
         }
         //ServiceHelpers::debughtml(['$scheduleArrIntervalMode' => $scheduleArrIntervalMode]);
-        //dd();
         $mode = $scheduleArrIntervalMode[$i - 1];
         switch ($mode) {
             case 0:

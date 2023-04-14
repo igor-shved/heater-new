@@ -1,13 +1,13 @@
 import {createApp, provide} from "vue";
-import store from "./store";
+import store from "../store";
 import axios from "axios";
 import VueEventer from "vue-eventer";
 
 const app = createApp({});
 /*heater.use(router).mount('#heater'); */
 
-app.component('menu_list', require('./components/MenuList.vue').default);
-app.component('heater_list', require('./components/room/HeaterList.vue').default);
+app.component('menu_list', require('../components/MenuList.vue').default);
+app.component('heater_list', require('../components/room/HeaterList.vue').default);
 app.config.globalProperties.$eventBus = new VueEventer();
 app.mixin({
     created() {
@@ -39,9 +39,13 @@ app.mixin({
             if (arr1.length !== arr2.length) return false;
             for (let i = 0; i < arr1.length; i++) {
                 if (typeof (arr1[i]) === 'object' && typeof (arr2[i]) === 'object') {
-                    if (!this.$isEqualObjects(arr1[i], arr2[i])) return false;
+                    if (!this.$isEqualObjects(arr1[i], arr2[i])) {
+                        return false;
+                    }
                 } else {
-                    if (JSON.stringify(arr1[i]) !== JSON.stringify(arr2[i])) return false;
+                    if (JSON.stringify(arr1[i]) !== JSON.stringify(arr2[i])) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -62,6 +66,11 @@ app.mixin({
                 }
             }
             return true;
+        }
+        this.$copyObject = function copyObject(obj) {
+            if (typeof obj !== 'object' || obj === null) {
+                return obj;
+            }
         }
     }
 })

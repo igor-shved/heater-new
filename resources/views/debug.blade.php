@@ -4,13 +4,13 @@
         <menu_list></menu_list>
     </div>
     <div class="content">
-        <div id="app">
-            <heater_list></heater_list>
+        <div id="debug">
+            <debug_list></debug_list>
         </div>
     </div>
 @endsection
 @section('script')
     <script src="{{ mix('js/menu.js') }}"></script>
-    <script src="{{ mix('js/heater.js') }}"></script>
+    <script src="{{ mix('js/debugSite.js') }}"></script>
 @endsection
 

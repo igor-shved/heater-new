@@ -108,32 +108,11 @@
             </div>
         </template>
         <template #content>
-            <div class="modal__temp_block">
-                <div class="modal__temp_element">
-                    <img class="modal__temp_img" src="/icons/t1.png"/>
-                </div>
-                <div class="modal__temp_element">
-                    <a href="" @click.prevent="tempTenUp"><img class="modal__temp_img"
-                                                               src="/icons/plus.png"/></a>
-                    <p>{{ tenTemp }}</p>
-                    <a href="" @click.prevent="tempTenDown"><img class="modal__temp_img"
-                                                                 src="/icons/minus.png"/></a>
-                </div>
-                <div class="modal__temp_element">
-                    <a href="" @click.prevent="tempOneUp"><img class="modal__temp_img"
-                                                               src="/icons/plus.png"/></a>
-                    <p>{{ oneTemp }}</p>
-                    <a href="" @click.prevent="tempOneDown"><img class="modal__temp_img"
-                                                                 src="/icons/minus.png"/></a>
-                </div>
-                <div class="modal__temp_element">
-                    <a href="" @click.prevent="tempTenthUp"><img class="modal__temp_img"
-                                                                 src="/icons/plus.png"/></a>
-                    <p>.{{ tenthTemp }}</p>
-                    <a href="" @click.prevent="tempTenthDown"><img class="modal__temp_img"
-                                                                   src="/icons/minus.png"/></a>
-                </div>
-            </div>
+            <select_temperature
+                :key="'selectTempNobodyHome'"
+                :tempSelectProps="tempNobodyHome"
+            >
+            </select_temperature>
         </template>
         <template #footer>
             <button @click="saveTempSetting" class="modal__footer_button">OK</button>
@@ -205,20 +184,24 @@
 <script>
 import modal_child from "././ModalChild.vue";
 import schedule_list from "../room/ScheduleList.vue";
+import select_temperature from "../mode/SelectTemperature.vue";
 import {mapActions, mapState} from "vuex";
 
 export default {
     name: "modal_window",
     props: ['roomProps', 'classProps'],
-    components: {schedule_list, modal_child},
+    components: {schedule_list, modal_child, select_temperature},
     data() {
         return {
             room: this.roomProps,
             nameTempRoom: this.roomProps.roomsTsensorsName,
             nameRelayRoom: this.roomProps.roomsPOutputs,
+            beforeNameTempRoom: this.roomProps.roomsTsensorsName,
+            beforeNameRelayRoom: this.roomProps.roomsPOutputs,
             nameRelay: '',
             nameTemp: '',
             nameRoom: this.roomProps.roomName,
+            beforeNameRoom: this.roomProps.roomName,
             isOpenModalMode: this.isOpenModalModeProps,
             isOpenModalSetting: false,
             isOpenModalTemp: false,
@@ -227,10 +210,7 @@ export default {
             arrayRelay: this.$store.state.arrayRelay,
             classWindow: this.classProps,
             arrSchedule: this.roomProps.scheduleArrRoom.map(item => ({...item})),
-            tempSelect: 0,
-            tenTemp: 0,
-            oneTemp: 0,
-            tenthTemp: 0,
+            tempNobodyHome: 0,
             classModal: {
                 'modal__shadow_child1': true,
                 'modal__modal_setting': true,
@@ -240,16 +220,14 @@ export default {
         }
     },
     created() {
+        this.tempNobodyHome = this.room.standByTemp * 10;
         this.SET_CURRENT_ROOM(this.room);
         this.$eventBus.$on('select_mode_set', this.selectModeSet);
         this.$eventBus.$on('modal_open_setting', this.modalStatusSetting);
         this.$eventBus.$on('modal_open_temp', this.modalStatusTemp);
         this.$eventBus.$on('modal_open_schedule', this.modalStatusSchedule);
         this.$eventBus.$on('rerender_schedule_list', this.rerenderScheduleList);
-        if (typeof (this.room.standByTemp) === 'number') {
-            this.tempSelect = this.room.standByTemp * 10;
-        }
-        this.changeTemp();
+        this.$eventBus.$on('select_temp_nobody_home', this.selectTempNoBodyHome);
     },
     mounted() {
         document.body.addEventListener("keydown", this.onKeyDown);
@@ -262,7 +240,7 @@ export default {
         this.$eventBus.$off('modal_open_setting', this.modalStatusSetting);
         this.$eventBus.$off('modal_open_temp', this.modalStatusTemp);
         this.$eventBus.$off('modal_open_schedule', this.modalStatusSchedule);
-        this.$eventBus.$off('rerender_schedule_list', this.rerenderComponent);
+        this.$eventBus.$off('select_temp_nobody_home', this.selectTempNoBodyHome);
     },
     methods: {
         ...mapActions(["SET_CURRENT_ROOM", "SET_NEW_SETTING_ARRAY", "COPY_SCHEDULE"]),
@@ -279,6 +257,7 @@ export default {
         },
         modalStatusTemp(statusModal) {
             this.isOpenModalTemp = statusModal;
+            this.isOpenModalTemp = statusModal;
         },
         modalStatusSchedule(statusModal) {
             if (!statusModal && !this.$isEqualArrays(this.arrSchedule, this.room.scheduleArrRoom)) {
@@ -293,17 +272,20 @@ export default {
             if (this.room.selectMode != null)
                 this.SET_NEW_SETTING_ARRAY({
                     idRoom: this.room.id,
-                    selectMode: this.selectMode
+                    name: 'selectMode',
+                    value: this.selectMode
                 });
         },
         tempSensorClick(sideClick) {
             let index = this.arrayTemp.findIndex(obj => obj.value === this.nameTempRoom);
             if (sideClick === 'left') {
-                if (index != 0)
+                if (index != 0) {
                     this.nameTempRoom = this.arrayTemp[index - 1].value;
+                }
             } else {
-                if (index != 15)
+                if (index != 15) {
                     this.nameTempRoom = this.arrayTemp[index + 1].value;
+                }
             }
         },
         tempSensorLeft() {
@@ -315,14 +297,15 @@ export default {
         relayClick(sideClick) {
             let index = this.arrayRelay.findIndex(item => item === this.nameRelayRoom);
             if (sideClick === 'left') {
-                if (index != 0)
+                if (index != 0) {
                     this.nameRelayRoom = this.arrayRelay[index - 1];
+                }
             } else {
-                if (index != 15)
+                if (index != 15) {
                     this.nameRelayRoom = this.arrayRelay[index + 1];
+                }
             }
         },
-
         relayLeft() {
             this.relayClick('left')
 
@@ -330,73 +313,61 @@ export default {
         relayRight() {
             this.relayClick('right')
         },
-        changeTemp() {
-            let arrayTempSelect = String(this.tempSelect).split('');
-            let numZero = 3 - arrayTempSelect.length;
-            for (let i = 1; i <= numZero; i++) {
-                arrayTempSelect.unshift('0');
-            }
-            this.tenTemp = arrayTempSelect[0];
-            this.oneTemp = arrayTempSelect[1];
-            this.tenthTemp = arrayTempSelect[2];
-        },
-        tempChange(operNumber, operation) {
-            if (operation === 'up')
-                this.tempSelect = this.tempSelect + operNumber;
-            else
-                this.tempSelect = this.tempSelect - operNumber;
-            if (this.tempSelect > 995 || this.tempSelect < 5)
-                this.tempSelect = 0;
-            this.changeTemp();
-        },
-        tempTenUp() {
-            this.tempChange(100, 'up');
-        },
-        tempTenDown() {
-            this.tempChange(100, 'down');
-        },
-        tempOneUp() {
-            this.tempChange(10, 'up');
-        },
-        tempOneDown() {
-            this.tempChange(10, 'down');
-        },
-        tempTenthUp() {
-            this.tempChange(5, 'up');
-        },
-        tempTenthDown() {
-            this.tempChange(5, 'down');
-        },
         saveSelectSetting() {
 
         },
         saveTempSetting() {
-
+            if (this.tempNobodyHome !== this.room.standByTemp * 10) {
+                this.SET_NEW_SETTING_ARRAY(
+                    {
+                        idRoom: this.room.id,
+                        name: 'tempNobodyHome',
+                        value: this.tempNobodyHome / 10
+                    }
+                );
+            }
+            this.modalStatusTemp(false);
         },
         saveScheduleSetting() {
             if (!this.$isEqualArrays(this.arrSchedule, this.room.scheduleArrRoom)) {
                 this.room.scheduleArrRoom = this.arrSchedule.map(item => ({...item}));
                 this.SET_NEW_SETTING_ARRAY(
-                    {scheduleArray: this.arrSchedule.map(item => ({...item}))}
+                    {
+                        idRoom: this.room.id,
+                        name: 'scheduleArray',
+                        value: this.arrSchedule.map(item => ({...item}))
+                    }
                 );
             }
+            this.modalStatusSchedule(false);
         },
         rerenderScheduleList() {
-            if (this.componentScheduleKey.includes('1'))
+            if (this.componentScheduleKey.includes('1')) {
                 this.componentScheduleKey = this.componentScheduleKey.slice(0, this.componentScheduleKey.length - 1);
-            else
+            } else {
                 this.componentScheduleKey += '1';
+            }
         },
         addScheduleItem() {
-            if (this.arrSchedule.length >= 6)
+            if (this.arrSchedule.length >= 6) {
                 return;
-            if (this.arrSchedule.length !== 0) {
-                let newItem = {...this.arrSchedule[this.arrSchedule.length - 1]};
-                newItem.numStr = newItem.numStr + 1;
-                newItem.time = newItem.time + 1;
-                this.arrSchedule.push(newItem);
-            } else
+            }
+            if (this.arrSchedule.length > 1) {
+                let curTime = this.arrSchedule[this.arrSchedule.length - 2].time;
+                let newItem = {...this.arrSchedule[this.arrSchedule.length - 2]};
+                newItem.numStr = this.arrSchedule[this.arrSchedule.length - 1].numStr + 1;
+                newItem.time = curTime + 1;
+                this.arrSchedule[this.arrSchedule.length - 1].time = newItem.time;
+                if (curTime <= 2358) {
+                    this.arrSchedule.push(newItem);
+                }
+
+            } else if (this.arrSchedule.length === 1) {
+                this.arrSchedule[0].time = 2300;
+                this.arrSchedule.push({'numStr': 2, 'time': 2301, 'temp': 20, 'mode': 0});
+            } else {
                 this.arrSchedule.push({'numStr': 1, 'time': 0, 'temp': 20, 'mode': 0});
+            }
             this.rerenderScheduleList();
         },
         removeScheduleItem() {
@@ -413,14 +384,18 @@ export default {
             });
         },
         pasteScheduleRoom() {
-            if (this.copySchedule.scheduleRoom.length !== 0)
+            if (this.copySchedule.scheduleRoom.length !== 0) {
                 this.arrSchedule = this.copySchedule.scheduleRoom.map(item => ({...item}));
+            }
             this.rerenderScheduleList();
+        },
+        selectTempNoBodyHome(temp) {
+            this.tempNobodyHome = temp;
         },
     },
     computed: {
         ...mapState({
-            copySchedule: 'copySchedule',
+            copySchedule: 'copySchedule', arrayNewSetting: 'arrayNewSetting',
         }),
         itMainBlock() {
             return this.room.id === 0;
