@@ -1,50 +1,88 @@
-version: "3"
+version: "3.7"
 
 services:
-    nginx:
-        image: nginx:latest
-        restart: unless-stopped
-        ports:
-            - 80:80
-        volumes:
-            - ./:/var/www/
-            - ./_docker/nginx/conf.d/:/etc/nginx/conf.d/
-        depends_on:
-            - php_fpm
-        container_name: project_nginx
-    php_fpm:
-        restart: unless-stopped
-        build:
-            context: .
-            dockerfile: _docker/php-fpm/DockerFile
-        volumes:
-            - ./:/var/www
-        depends_on:
-            - mysql
-        container_name: project_php
-    mysql:
-        image: mysql:8.0
-        restart: unless-stopped
-        #ports:
-        #    - 3306:3306
-        volumes:
-            - ./_docker/mysql/db:/var/lib/mysql
-        environment:
-            MYSQL_DATABASE: heater
-            MYSQL_USER: webdev
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_PASSWORD: 12345
-        container_name: project_db
-    pma:
-        image: phpmyadmin:latest
-        restart: unless-stopped
-        ports:
-            - 81:80
-        depends_on:
-            - mysql
-        environment:
-            PMA_HOST: mysql
-            MYSQL_USER: webdev
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_PASSWORD: 12345
-        container_name: project_pma
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/
+      - ./_docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./_docker/nginx/log:/var/log/nginx/
+    depends_on:
+      - php_fpm
+    networks:
+      - app_net
+    container_name: app_nginx
+  php_fpm:
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    build:
+      context: ./
+      args:
+        user: webdev
+        uid: 1000
+      dockerfile: ./_docker/php-fpm/DockerFile
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www/
+    depends_on:
+      - mysql
+    networks:
+      - app_net
+    container_name: app_php
+  #composer:
+  #  image: composer:latest
+  #  volumes:
+  #    - ./:/var/www/
+  #  working_dir: /var/www/
+  #  entrypoint:
+  #    - composer
+  #    - install
+  #  depends_on:
+  #    - php_fpm
+  #  networks:
+  #    - app_net
+  #  container_name: app_composer
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./_docker/mysql/db:/var/lib/mysql
+      - ./_docker/mysql/logs:/var/log/mysql
+    environment:
+      #MYSQL_DATABASE: heater
+      MYSQL_USER: webdev
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: 12345
+    networks:
+      - app_net
+    container_name: app_mysql
+  pma:
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    ports:
+      - "81:80"
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      MYSQL_USER: webdev
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: 12345
+      UPLOAD_LIMIT: 10000M
+    networks:
+      - app_net
+    container_name: app_pma
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    container_name: app_redis
+networks:
+  app_net:
+    driver: bridge
