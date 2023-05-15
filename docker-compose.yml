@@ -24,7 +24,7 @@ services:
       args:
         user: webdev
         uid: 1000
-      dockerfile: ./_docker/php-fpm/DockerFile
+      dockerfile: ./_docker/php_fpm/DockerFile
     working_dir: /var/www/
     volumes:
       - ./:/var/www/
@@ -82,6 +82,8 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+    networks:
+      - app_net
     container_name: app_redis
 networks:
   app_net:
